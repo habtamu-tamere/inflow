@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Campaign - InfluenceEthiopia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .create-campaign-container {
+            padding: 50px 0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .create-campaign-container h2 {
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            resize: vertical;
+        }
+        .form-group textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        .niche-tags-input {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .niche-tag {
+            background: var(--light);
+            color: var(--dark);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        .niche-tag .remove-tag {
+            margin-left: 8px;
+            cursor: pointer;
+            color: var(--danger);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-bullhorn"></i>
+                    <span>InfluenceEthiopia</span>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="index.html#campaigns-tab">Campaigns</a></li>
+                        <li><a href="index.html#influencers-tab">Influencers</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">About</a></li>
+                    </ul>
+                </nav>
+                <div class="auth-buttons">
+                    <button class="btn btn-outline" id="loginBtn">Login</button>
+                    <button class="btn btn-primary" id="registerBtn">Sign Up</button>
+                    <button class="btn btn-primary" id="createCampaignBtn" style="display: none;">Create Campaign</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="create-campaign-container">
+        <div class="container">
+            <h2>Create a New Campaign</h2>
+            <form id="create-campaign-form">
+                <div class="form-group">
+                    <label for="campaign-title">Campaign Title</label>
+                    <input type="text" id="campaign-title" placeholder="Enter campaign title" required>
+                </div>
+                <div class="form-group">
+                    <label for="campaign-description">Description</label>
+                    <textarea id="campaign-description" rows="5" placeholder="Describe your campaign" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="campaign-industry">Industry</label>
+                    <select id="campaign-industry" required>
+                        <option value="">Select Industry</option>
+                        <option value="fashion">Fashion & Beauty</option>
+                        <option value="food">Food & Beverage</option>
+                        <option value="tech">Technology</option>
+                        <option value="travel">Travel & Tourism</option>
+                        <option value="health">Health & Fitness</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="campaign-budget">Budget Range</label>
+                    <select id="campaign-budget" required>
+                        <option value="">Select Budget</option>
+                        <option value="micro">Micro (under $100)</option>
+                        <option value="small">Small ($100-$500)</option>
+                        <option value="medium">Medium ($500-$2,000)</option>
+                        <option value="large">Large ($2,000+)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="campaign-performance">Performance Model</label>
+                    <select id="campaign-performance" required>
+                        <option value="">Select Model</option>
+                        <option value="cpa">Cost Per Acquisition</option>
+                        <option value="cpc">Cost Per Click</option>
+                        <option value="cpe">Cost Per Engagement</option>
+                        <option value="fixed">Fixed Rate</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="campaign-deadline">Deadline</label>
+                    <input type="date" id="campaign-deadline" required>
+                </div>
+                <div class="form-group">
+                    <label for="campaign-niche-tags">Niche Tags (comma-separated)</label>
+                    <input type="text" id="campaign-niche-tags" placeholder="e.g., Fashion, Lifestyle">
+                    <div class="niche-tags-input" id="niche-tags-container"></div>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Campaign</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Modals (same as index.html) -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="auth-form">
+                <h2>Login to Your Account</h2>
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="Enter your password">
+                </div>
+                <button class="btn btn-primary">Login</button>
+                <p>Don't have an account? <a href="#" id="switchToRegister">Register</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="auth-form">
+                <h2>Create an Account</h2>
+                <div class="form-group">
+                    <label for="register-name">Full Name</label>
+                    <input type="text" id="register-name" placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" placeholder="Create a password">
+                </div>
+                <div class="form-group">
+                    <label for="register-role">I am a:</label>
+                    <select id="register-role">
+                        <option value="brand">Brand/Business</option>
+                        <option value="influencer">Influencer/Creator</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary">Create Account</button>
+                <p>Already have an account? <a href="#" id="switchToLogin">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
