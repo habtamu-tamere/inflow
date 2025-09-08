@@ -7,7 +7,7 @@ const authMiddleware = require('../middleware/auth');
 
 router.post('/register', async (req, res) => {
   const { name, email, password, role } = req.body;
-  console.log('Register attempt:', { name, email, role });
+  console.log('POST /api/auth/register:', { name, email, role });
 
   try {
     let user = await User.findOne({ email });
@@ -25,14 +25,14 @@ router.post('/register', async (req, res) => {
 
     res.json({ token, user: { id: user._id, name, email, role } });
   } catch (error) {
-    console.error('Register error:', error);
+    console.error('Register error:', error.message);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
-  console.log('Login attempt:', { email });
+  console.log('POST /api/auth/login:', { email });
 
   try {
     const user = await User.findOne({ email });
@@ -53,10 +53,24 @@ router.post('/login', async (req, res) => {
 
     res.json({ token, user: { id: user._id, name: user.name, email, role: user.role } });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Login error:', error.message);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
+router.get('/me', authMiddleware, async (req, res) => {
+  console.log('GET /api/auth/me:', req.user);
+  try {
+    const user = await User.findById(req.user.userId).select('-password');
+    if (!user) {
+      console.log('User not found:', req.user.userId);
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error('Me error:', error.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 module.exports = router;
