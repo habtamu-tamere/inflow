@@ -29,6 +29,7 @@
                 <div class="auth-buttons">
                     <button class="btn btn-outline" id="loginBtn">Login</button>
                     <button class="btn btn-primary" id="registerBtn">Sign Up</button>
+                    <button class="btn btn-primary" id="createCampaignBtn" style="display: none;">Create Campaign</button>
                 </div>
             </div>
         </div>
@@ -97,6 +98,16 @@
             </div>
 
             <div class="card-grid">
+                                <!-- Campaign Dynamic -->
+                <div class="card campaign-card">
+                    <div class="card-header">
+                        <h3><a href="campaign.html?id=${campaign._id}">${campaign.title}</a></h3>
+                        <span class="campaign-badge">${campaign.performanceModel}</span>
+                    </div>
+                    <!-- Rest of the card content -->
+                </div>
+
+                
                 <!-- Campaign 1 -->
                 <div class="card campaign-card">
                     <div class="card-header">
@@ -229,6 +240,19 @@
             </div>
 
             <div class="card-grid">
+                <!-- Dynamic loading -->
+                 <div class="card influencer-card">
+                    <div class="card-header">
+                        <div class="influencer-avatar">
+                            <img src="${influencer.avatar}" alt="${influencer.name}">
+                        </div>
+                  <div class="influencer-info">
+                    <h3><a href="profile.html?id=${influencer._id}">${influencer.name}</a></h3>
+                    <p>${influencer.niche}</p>
+                  </div>
+                </div>
+                <!-- Rest of the card content -->
+                </div>
                 <!-- Influencer 1 -->
                 <div class="card influencer-card">
                     <div class="card-header">
@@ -442,4 +466,5 @@
   <script src="js/main.js"></script>
 </body>
 </html>
+
 
