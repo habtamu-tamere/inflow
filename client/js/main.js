@@ -2,7 +2,7 @@ const API_BASE_URL = window.location.hostname.includes('localhost')
   ? 'http://localhost:5000'
   : 'https://inflow-tiy3.onrender.com';
 
-  // Token management
+// Token management
 const getToken = () => localStorage.getItem('token');
 const setToken = (token) => localStorage.setItem('token', token);
 const removeToken = () => localStorage.removeItem('token');
@@ -18,13 +18,17 @@ const setupModals = () => {
   const switchToLogin = document.getElementById('switchToLogin');
   const closeButtons = document.querySelectorAll('.close-modal');
 
-  loginBtn.addEventListener('click', () => {
-    loginModal.style.display = 'flex';
-  });
+  if (loginBtn) {
+    loginBtn.addEventListener('click', () => {
+      loginModal.style.display = 'flex';
+    });
+  }
 
-  registerBtn.addEventListener('click', () => {
-    registerModal.style.display = 'flex';
-  });
+  if (registerBtn) {
+    registerBtn.addEventListener('click', () => {
+      registerModal.style.display = 'flex';
+    });
+  }
 
   if (createCampaignBtn) {
     createCampaignBtn.addEventListener('click', () => {
@@ -32,17 +36,21 @@ const setupModals = () => {
     });
   }
 
-  switchToRegister.addEventListener('click', (e) => {
-    e.preventDefault();
-    loginModal.style.display = 'none';
-    registerModal.style.display = 'flex';
-  });
+  if (switchToRegister) {
+    switchToRegister.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginModal.style.display = 'none';
+      registerModal.style.display = 'flex';
+    });
+  }
 
-  switchToLogin.addEventListener('click', (e) => {
-    e.preventDefault();
-    registerModal.style.display = 'none';
-    loginModal.style.display = 'flex';
-  });
+  if (switchToLogin) {
+    switchToLogin.addEventListener('click', (e) => {
+      e.preventDefault();
+      registerModal.style.display = 'none';
+      loginModal.style.display = 'flex';
+    });
+  }
 
   closeButtons.forEach(button => {
     button.addEventListener('click', () => {
@@ -59,39 +67,50 @@ const setupModals = () => {
 
 // Authentication
 const setupAuth = () => {
-  document.querySelector('#loginModal .auth-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
+  const loginForm = document.querySelector('#loginModal .auth-form');
+  const registerForm = document.querySelector('#registerModal .auth-form');
 
-    try {
-      const response = await axios.post('${API_BASE_URL}/api/auth/login', { email, password });
-      setToken(response.data.token);
-      alert('Login successful!');
-      document.getElementById('loginModal').style.display = 'none';
-      loadUserData();
-    } catch (error) {
-      alert(error.response.data.message || 'Login failed');
-    }
-  });
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      console.log('Login form submitted:', { email });
 
-  document.querySelector('#registerModal .auth-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const name = document.getElementById('register-name').value;
-    const email = document.getElementById('register-email').value;
-    const password = document.getElementById('register-password').value;
-    const role = document.getElementById('register-role').value;
+      try {
+        const response = await axios.post(`${API_BASE_URL}/api/auth/login`, { email, password });
+        setToken(response.data.token);
+        alert('Login successful!');
+        document.getElementById('loginModal').style.display = 'none';
+        loadUserData();
+      } catch (error) {
+        console.error('Login error:', error.response);
+        alert(error.response?.data?.message || 'Login failed');
+      }
+    });
+  }
 
-    try {
-      const response = await axios.post('${API_BASE_URL}/api/auth/register', { name, email, password, role });
-      setToken(response.data.token);
-      alert('Registration successful!');
-      document.getElementById('registerModal').style.display = 'none';
-      loadUserData();
-    } catch (error) {
-      alert(error.response.data.message || 'Registration failed');
-    }
-  });
+  if (registerForm) {
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('register-name').value;
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+      const role = document.getElementById('register-role').value;
+      console.log('Register form submitted:', { name, email, role });
+
+      try {
+        const response = await axios.post(`${API_BASE_URL}/api/auth/register`, { name, email, password, role });
+        setToken(response.data.token);
+        alert('Registration successful!');
+        document.getElementById('registerModal').style.display = 'none';
+        loadUserData();
+      } catch (error) {
+        console.error('Register error:', error.response);
+        alert(error.response?.data?.message || 'Registration failed');
+      }
+    });
+  }
 };
 
 // Load user data
@@ -103,27 +122,31 @@ const loadUserData = async () => {
 
   if (token) {
     try {
-      const response = await axios.get('${API_BASE_URL}/api/auth/me', {
+      const response = await axios.get(`${API_BASE_URL}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      loginBtn.textContent = 'Logout';
-      loginBtn.removeEventListener('click', setupModals);
-      loginBtn.addEventListener('click', () => {
-        removeToken();
-        loginBtn.textContent = 'Login';
-        loginBtn.addEventListener('click', setupModals);
-        if (createCampaignBtn) createCampaignBtn.style.display = 'none';
-        registerBtn.style.display = 'block';
-        alert('Logged out');
-        if (window.location.pathname.includes('create-campaign.html')) {
-          window.location.href = 'index.html';
-        }
-      });
-      registerBtn.style.display = 'none';
+      console.log('User data loaded:', response.data);
+      if (loginBtn) {
+        loginBtn.textContent = 'Logout';
+        loginBtn.removeEventListener('click', setupModals);
+        loginBtn.addEventListener('click', () => {
+          removeToken();
+          loginBtn.textContent = 'Login';
+          loginBtn.addEventListener('click', setupModals);
+          if (createCampaignBtn) createCampaignBtn.style.display = 'none';
+          if (registerBtn) registerBtn.style.display = 'block';
+          alert('Logged out');
+          if (window.location.pathname.includes('create-campaign.html')) {
+            window.location.href = 'index.html';
+          }
+        });
+      }
+      if (registerBtn) registerBtn.style.display = 'none';
       if (response.data.role === 'brand' && createCampaignBtn) {
         createCampaignBtn.style.display = 'block';
       }
     } catch (error) {
+      console.error('User data error:', error.response);
       removeToken();
       if (createCampaignBtn) createCampaignBtn.style.display = 'none';
       if (window.location.pathname.includes('create-campaign.html')) {
@@ -135,6 +158,7 @@ const loadUserData = async () => {
 
 // Tab switching (for index.html)
 const switchTab = (tabName) => {
+  if (!window.location.pathname.includes('index.html')) return;
   document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
   document.getElementById(tabName + '-tab').classList.add('active');
@@ -146,96 +170,104 @@ const switchTab = (tabName) => {
 // Load campaigns (for index.html)
 const loadCampaigns = async () => {
   if (!window.location.pathname.includes('index.html')) return;
-  const industry = document.getElementById('industry').value;
-  const budget = document.getElementById('budget').value;
-  const performance = document.getElementById('performance').value;
+  const industry = document.getElementById('industry')?.value || '';
+  const budget = document.getElementById('budget')?.value || '';
+  const performance = document.getElementById('performance')?.value || '';
 
   try {
-    const response = await axios.get('${API_BASE_URL}/api/campaigns', { params: { industry, budget, performance } });
+    const response = await axios.get(`${API_BASE_URL}/api/campaigns`, { params: { industry, budget, performance } });
     const campaigns = response.data;
+    console.log('Campaigns loaded:', campaigns);
     const cardGrid = document.querySelector('#campaigns-tab .card-grid');
-    cardGrid.innerHTML = campaigns.map(campaign => `
-      <div class="card campaign-card">
-        <div class="card-header">
-          <h3><a href="campaign.html?id=${campaign._id}">${campaign.title}</a></h3>
-          <span class="campaign-badge">${campaign.performanceModel}</span>
-        </div>
-        <div class="card-body">
-          <p>${campaign.description}</p>
-          <div class="niche-tags">
-            ${campaign.nicheTags.map(tag => `<span class="niche-tag">${tag}</span>`).join('')}
+    if (cardGrid) {
+      cardGrid.innerHTML = campaigns.length ? campaigns.map(campaign => `
+        <div class="card campaign-card">
+          <div class="card-header">
+            <h3><a href="campaign.html?id=${campaign._id}">${campaign.title}</a></h3>
+            <span class="campaign-badge">${campaign.performanceModel}</span>
           </div>
-          <div class="stats">
-            <div class="stat">
-              <span class="stat-value">${campaign.budget}</span>
-              <span class="stat-label">Budget</span>
+          <div class="card-body">
+            <p>${campaign.description}</p>
+            <div class="niche-tags">
+              ${campaign.nicheTags.map(tag => `<span class="niche-tag">${tag}</span>`).join('')}
             </div>
-            <div class="stat">
-              <span class="stat-value">${campaign.applications.length}</span>
-              <span class="stat-label">Applications</span>
+            <div class="stats">
+              <div class="stat">
+                <span class="stat-value">${campaign.budget}</span>
+                <span class="stat-label">Budget</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">${campaign.applications.length}</span>
+                <span class="stat-label">Applications</span>
+              </div>
             </div>
           </div>
+          <div class="card-footer">
+            <span>Deadline: ${campaign.deadline}</span>
+            <button class="btn btn-primary btn-sm" onclick="applyToCampaign('${campaign._id}')">Apply Now</button>
+          </div>
         </div>
-        <div class="card-footer">
-          <span>Deadline: ${campaign.deadline}</span>
-          <button class="btn btn-primary btn-sm" onclick="applyToCampaign('${campaign._id}')">Apply Now</button>
-        </div>
-      </div>
-    `).join('');
+      `).join('') : '<p>No campaigns found.</p>';
+    }
   } catch (error) {
-    console.error('Error loading campaigns:', error);
+    console.error('Error loading campaigns:', error.response);
+    alert(error.response?.data?.message || 'Failed to load campaigns');
   }
 };
 
 // Load influencers (for index.html)
 const loadInfluencers = async () => {
   if (!window.location.pathname.includes('index.html')) return;
-  const niche = document.getElementById('influencer-niche').value;
-  const followers = document.getElementById('followers').value;
-  const rate = document.getElementById('rate').value;
+  const niche = document.getElementById('influencer-niche')?.value || '';
+  const followers = document.getElementById('followers')?.value || '';
+  const rate = document.getElementById('rate')?.value || '';
 
   try {
-    const response = await axios.get('${API_BASE_URL}/api/influencers', { params: { niche, followers, rate } });
+    const response = await axios.get(`${API_BASE_URL}/api/influencers`, { params: { niche, followers, rate } });
     const influencers = response.data;
+    console.log('Influencers loaded:', influencers);
     const cardGrid = document.querySelector('#influencers-tab .card-grid');
-    cardGrid.innerHTML = influencers.map(influencer => `
-      <div class="card influencer-card">
-        <div class="card-header">
-          <div class="influencer-avatar">
-            <img src="${influencer.avatar}" alt="${influencer.name}">
-          </div>
-          <div class="influencer-info">
-            <h3><a href="profile.html?id=${influencer._id}">${influencer.name}</a></h3>
-            <p>${influencer.niche}</p>
-          </div>
-        </div>
-        <div class="card-body">
-          <div class="stats">
-            <div class="stat">
-              <span class="stat-value">${influencer.followers.toLocaleString()}</span>
-              <span class="stat-label">Followers</span>
+    if (cardGrid) {
+      cardGrid.innerHTML = influencers.length ? influencers.map(influencer => `
+        <div class="card influencer-card">
+          <div class="card-header">
+            <div class="influencer-avatar">
+              <img src="${influencer.avatar}" alt="${influencer.name}">
             </div>
-            <div class="stat">
-              <span class="stat-value">${influencer.engagement}%</span>
-              <span class="stat-label">Engagement</span>
-            </div>
-            <div class="stat">
-              <span class="stat-value">$${influencer.rate}</span>
-              <span class="stat-label">Rate/Post</span>
+            <div class="influencer-info">
+              <h3><a href="profile.html?id=${influencer._id}">${influencer.name}</a></h3>
+              <p>${influencer.niche}</p>
             </div>
           </div>
-          <div class="niche-tags">
-            ${influencer.nicheTags.map(tag => `<span class="niche-tag">${tag}</span>`).join('')}
+          <div class="card-body">
+            <div class="stats">
+              <div class="stat">
+                <span class="stat-value">${influencer.followers.toLocaleString()}</span>
+                <span class="stat-label">Followers</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">${influencer.engagement}%</span>
+                <span class="stat-label">Engagement</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">$${influencer.rate}</span>
+                <span class="stat-label">Rate/Post</span>
+              </div>
+            </div>
+            <div class="niche-tags">
+              ${influencer.nicheTags.map(tag => `<span class="niche-tag">${tag}</span>`).join('')}
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-outline" onclick="window.location.href='profile.html?id=${influencer._id}'">View Profile</button>
+            <button class="btn btn-primary">Contact</button>
           </div>
         </div>
-        <div class="card-footer">
-          <button class="btn btn-outline" onclick="window.location.href='profile.html?id=${influencer._id}'">View Profile</button>
-          <button class="btn btn-primary">Contact</button>
-        </div>
-      </div>
-    `).join('');
+      `).join('') : '<p>No influencers found.</p>';
+    }
   } catch (error) {
-    console.error('Error loading influencers:', error);
+    console.error('Error loading influencers:', error.response);
+    alert(error.response?.data?.message || 'Failed to load influencers');
   }
 };
 
@@ -254,7 +286,8 @@ const applyToCampaign = async (campaignId) => {
     });
     alert('Application submitted successfully!');
   } catch (error) {
-    alert(error.response.data.message || 'Application failed');
+    console.error('Apply error:', error.response);
+    alert(error.response?.data?.message || 'Application failed');
   }
 };
 
@@ -267,6 +300,7 @@ const loadInfluencerProfile = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/api/influencers/${id}`);
     const influencer = response.data;
+    console.log('Influencer profile loaded:', influencer);
     document.getElementById('profile-avatar').src = influencer.avatar;
     document.getElementById('profile-name').textContent = influencer.name;
     document.getElementById('profile-niche').textContent = influencer.niche;
@@ -276,7 +310,8 @@ const loadInfluencerProfile = async () => {
     document.getElementById('profile-rate').textContent = `$${influencer.rate}`;
     document.getElementById('profile-niche-tags').innerHTML = influencer.nicheTags.map(tag => `<span class="niche-tag">${tag}</span>`).join('');
   } catch (error) {
-    alert(error.response.data.message || 'Failed to load profile');
+    console.error('Profile error:', error.response);
+    alert(error.response?.data?.message || 'Failed to load profile');
   }
 };
 
@@ -289,6 +324,7 @@ const loadCampaignDetails = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/api/campaigns/${id}`);
     const campaign = response.data;
+    console.log('Campaign details loaded:', campaign);
     document.getElementById('campaign-title').textContent = campaign.title;
     document.getElementById('campaign-badge').textContent = campaign.performanceModel;
     document.getElementById('campaign-description').textContent = campaign.description;
@@ -296,10 +332,13 @@ const loadCampaignDetails = async () => {
     document.getElementById('campaign-applications').textContent = campaign.applications.length;
     document.getElementById('campaign-deadline').textContent = campaign.deadline;
     document.getElementById('campaign-niche-tags').innerHTML = campaign.nicheTags.map(tag => `<span class="niche-tag">${tag}</span>`).join('');
-    document.getElementById('campaign-applicants').innerHTML = campaign.applications.map(applicant => `<li>${applicant.name}</li>`).join('');
+    document.getElementById('campaign-applicants').innerHTML = campaign.applications.length
+      ? campaign.applications.map(applicant => `<li>${applicant.name}</li>`).join('')
+      : '<li>No applicants yet.</li>';
     document.getElementById('applyBtn').addEventListener('click', () => applyToCampaign(id));
   } catch (error) {
-    alert(error.response.data.message || 'Failed to load campaign');
+    console.error('Campaign details error:', error.response);
+    alert(error.response?.data?.message || 'Failed to load campaign');
   }
 };
 
@@ -311,17 +350,19 @@ const setupCreateCampaign = () => {
   const nicheTagsContainer = document.getElementById('niche-tags-container');
   let nicheTags = [];
 
-  nicheTagsInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      const tags = nicheTagsInput.value.split(',').map(tag => tag.trim()).filter(tag => tag);
-      nicheTags = [...new Set([...nicheTags, ...tags])]; // Remove duplicates
-      nicheTagsContainer.innerHTML = nicheTags.map(tag => `
-        <span class="niche-tag">${tag}<span class="remove-tag" onclick="removeTag('${tag}')">×</span></span>
-      `).join('');
-      nicheTagsInput.value = '';
-    }
-  });
+  if (nicheTagsInput) {
+    nicheTagsInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const tags = nicheTagsInput.value.split(',').map(tag => tag.trim()).filter(tag => tag);
+        nicheTags = [...new Set([...nicheTags, ...tags])];
+        nicheTagsContainer.innerHTML = nicheTags.map(tag => `
+          <span class="niche-tag">${tag}<span class="remove-tag" onclick="removeTag('${tag}')">×</span></span>
+        `).join('');
+        nicheTagsInput.value = '';
+      }
+    });
+  }
 
   window.removeTag = (tag) => {
     nicheTags = nicheTags.filter(t => t !== tag);
@@ -330,35 +371,39 @@ const setupCreateCampaign = () => {
     `).join('');
   };
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const token = getToken();
-    if (!token) {
-      alert('Please login as a brand to create a campaign');
-      document.getElementById('loginModal').style.display = 'flex';
-      return;
-    }
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const token = getToken();
+      if (!token) {
+        alert('Please login as a brand to create a campaign');
+        document.getElementById('loginModal').style.display = 'flex';
+        return;
+      }
 
-    const campaignData = {
-      title: document.getElementById('campaign-title').value,
-      description: document.getElementById('campaign-description').value,
-      industry: document.getElementById('campaign-industry').value,
-      budget: document.getElementById('campaign-budget').value,
-      performanceModel: document.getElementById('campaign-performance').value,
-      nicheTags,
-      deadline: document.getElementById('campaign-deadline').value,
-    };
+      const campaignData = {
+        title: document.getElementById('campaign-title').value,
+        description: document.getElementById('campaign-description').value,
+        industry: document.getElementById('campaign-industry').value,
+        budget: document.getElementById('campaign-budget').value,
+        performanceModel: document.getElementById('campaign-performance').value,
+        nicheTags,
+        deadline: document.getElementById('campaign-deadline').value,
+      };
+      console.log('Campaign form submitted:', campaignData);
 
-    try {
-      await axios.post('${API_BASE_URL}/api/campaigns', campaignData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      alert('Campaign created successfully!');
-      window.location.href = 'index.html#campaigns-tab';
-    } catch (error) {
-      alert(error.response.data.message || 'Failed to create campaign');
-    }
-  });
+      try {
+        await axios.post(`${API_BASE_URL}/api/campaigns`, campaignData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        alert('Campaign created successfully!');
+        window.location.href = 'index.html#campaigns-tab';
+      } catch (error) {
+        console.error('Create campaign error:', error.response);
+        alert(error.response?.data?.message || 'Failed to create campaign');
+      }
+    });
+  }
 };
 
 // Filter buttons (for index.html)
@@ -366,7 +411,7 @@ const setupFilters = () => {
   if (!window.location.pathname.includes('index.html')) return;
   document.querySelectorAll('.filters .btn-primary').forEach(button => {
     button.addEventListener('click', () => {
-      const activeTab = document.querySelector('.tab.active').textContent.toLowerCase();
+      const activeTab = document.querySelector('.tab.active')?.textContent.toLowerCase();
       if (activeTab === 'campaigns') loadCampaigns();
       else loadInfluencers();
     });
@@ -728,3 +773,4 @@ setupFilters();
     //     });
 
     // });
+
