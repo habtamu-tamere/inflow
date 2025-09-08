@@ -1,4 +1,8 @@
-// Token management
+const API_BASE_URL = window.location.hostname.includes('localhost')
+  ? 'http://localhost:5000'
+  : 'https://inflow-tiy3.onrender.com';
+
+  // Token management
 const getToken = () => localStorage.getItem('token');
 const setToken = (token) => localStorage.setItem('token', token);
 const removeToken = () => localStorage.removeItem('token');
@@ -61,7 +65,7 @@ const setupAuth = () => {
     const password = document.getElementById('login-password').value;
 
     try {
-      const response = await axios.post('/api/auth/login', { email, password });
+      const response = await axios.post('${API_BASE_URL}/api/auth/login', { email, password });
       setToken(response.data.token);
       alert('Login successful!');
       document.getElementById('loginModal').style.display = 'none';
@@ -79,7 +83,7 @@ const setupAuth = () => {
     const role = document.getElementById('register-role').value;
 
     try {
-      const response = await axios.post('/api/auth/register', { name, email, password, role });
+      const response = await axios.post('${API_BASE_URL}/api/auth/register', { name, email, password, role });
       setToken(response.data.token);
       alert('Registration successful!');
       document.getElementById('registerModal').style.display = 'none';
@@ -99,7 +103,7 @@ const loadUserData = async () => {
 
   if (token) {
     try {
-      const response = await axios.get('/api/auth/me', {
+      const response = await axios.get('${API_BASE_URL}/api/auth/me', {
         headers: { Authorization: `Bearer ${token}` },
       });
       loginBtn.textContent = 'Logout';
@@ -147,7 +151,7 @@ const loadCampaigns = async () => {
   const performance = document.getElementById('performance').value;
 
   try {
-    const response = await axios.get('/api/campaigns', { params: { industry, budget, performance } });
+    const response = await axios.get('${API_BASE_URL}/api/campaigns', { params: { industry, budget, performance } });
     const campaigns = response.data;
     const cardGrid = document.querySelector('#campaigns-tab .card-grid');
     cardGrid.innerHTML = campaigns.map(campaign => `
@@ -191,7 +195,7 @@ const loadInfluencers = async () => {
   const rate = document.getElementById('rate').value;
 
   try {
-    const response = await axios.get('/api/influencers', { params: { niche, followers, rate } });
+    const response = await axios.get('${API_BASE_URL}/api/influencers', { params: { niche, followers, rate } });
     const influencers = response.data;
     const cardGrid = document.querySelector('#influencers-tab .card-grid');
     cardGrid.innerHTML = influencers.map(influencer => `
@@ -245,7 +249,7 @@ const applyToCampaign = async (campaignId) => {
   }
 
   try {
-    await axios.post(`/api/campaigns/${campaignId}/apply`, {}, {
+    await axios.post(`${API_BASE_URL}/api/campaigns/${campaignId}/apply`, {}, {
       headers: { Authorization: `Bearer ${token}` },
     });
     alert('Application submitted successfully!');
@@ -261,7 +265,7 @@ const loadInfluencerProfile = async () => {
   const id = urlParams.get('id');
 
   try {
-    const response = await axios.get(`/api/influencers/${id}`);
+    const response = await axios.get(`${API_BASE_URL}/api/influencers/${id}`);
     const influencer = response.data;
     document.getElementById('profile-avatar').src = influencer.avatar;
     document.getElementById('profile-name').textContent = influencer.name;
@@ -283,7 +287,7 @@ const loadCampaignDetails = async () => {
   const id = urlParams.get('id');
 
   try {
-    const response = await axios.get(`/api/campaigns/${id}`);
+    const response = await axios.get(`${API_BASE_URL}/api/campaigns/${id}`);
     const campaign = response.data;
     document.getElementById('campaign-title').textContent = campaign.title;
     document.getElementById('campaign-badge').textContent = campaign.performanceModel;
@@ -346,7 +350,7 @@ const setupCreateCampaign = () => {
     };
 
     try {
-      await axios.post('/api/campaigns', campaignData, {
+      await axios.post('${API_BASE_URL}/api/campaigns', campaignData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert('Campaign created successfully!');
@@ -379,6 +383,9 @@ loadInfluencerProfile();
 loadCampaignDetails();
 setupCreateCampaign();
 setupFilters();
+
+
+
 
 
 
@@ -719,4 +726,5 @@ setupFilters();
     //         loginModal.style.display = 'none';
     //         registerModal.style.display = 'none';
     //     });
+
     // });
